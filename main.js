@@ -194,15 +194,16 @@ db.connect(function(database){
 
     }).listen(8000);
 
-    console.log("=>Creating crons...");
+    console.log("=>Creating crons for current time: "+(new Date)+"...");
 
     //Crons
     new CronJob({
         //Run on saturday
-      cronTime: '00 00 18 * * 6',
+      cronTime: '00 00 4 * * 6',
       start: false,
       timeZone: 'Europe/Madrid',
       onTick: function() {
+        console.log("Cron tick");
         //Runs on Saturday at night
         http.get('http://localhost:8000/scrap-data/get-companies-history', function(res){
         }).on('error', function (error) {

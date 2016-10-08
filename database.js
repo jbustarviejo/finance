@@ -97,7 +97,7 @@ module.exports = {
                        // {"$and": [
                             {"$or": [
                                 {
-                                    historyUpdatedAt: {$lt:new Date(new Date().getTime() - (1000 * 60) * 60 *24)}
+                                    historyUpdatedAt: {$lt:new Date(new Date().getTime() - (1000 * 60) * 60 * 24 * 4)} //4 days
                                 },{
                                     historyUpdatedAt: null
                                   }
