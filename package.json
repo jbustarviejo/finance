@@ -1,0 +1,32 @@
+{
+  "name": "finance",
+  "version": "0.4.0",
+  "description": "Finance data recovering system",
+  "main": "main.js",
+  "dependencies": {
+    "cheerio": "^0.22.0",
+    "cron": "^1.1.0",
+    "fast-csv": "^2.2.0",
+    "jquery": "^3.1.0",
+    "jsdom": "^9.4.1",
+    "jsonexport": "^1.1.0",
+    "mongodb": "^2.2.10"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jbustarviejo/finance.git"
+  },
+  "keywords": [
+    "Finance"
+  ],
+  "author": "jbustarviejo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jbustarviejo/finance/issues"
+  },
+  "homepage": "https://github.com/jbustarviejo/finance#readme"
+}
