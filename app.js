@@ -13,8 +13,8 @@ var debug = true;
 /* RoboMongo Query for current status
 
 var history=db.getCollection('history').find({});
-var totalCompanies=db.getCollection('companies').find({}).length();
-var totalHistory=history.length();
+var totalCompanies=db.getCollection('companies').find({}).count();
+var totalHistory=history.count();
 var updatables=db.getCollection('companies').find({"$or": [{historyUpdatedAt: {$lt:new Date(new Date().getTime() - (1000 * 60) * 60 *24)}},{historyUpdatedAt: null}]}).count();
 var last100=db.getCollection('companies').find({ historyUpdatedAt: { $ne: null } }).limit(100).sort({historyUpdatedAt: 1});
 var meanTime=((last100[99].historyUpdatedAt-last100[0].historyUpdatedAt)/60000)*60/100;
@@ -199,7 +199,7 @@ db.connect(function(database){
     //Crons
     new CronJob({
         //Run on saturday
-      cronTime: '00 00 4 * * 6',
+      cronTime: '00 00 4 * * 5',
       start: false,
       timeZone: 'Europe/Madrid',
       onTick: function() {

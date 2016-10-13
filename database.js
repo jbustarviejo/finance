@@ -82,9 +82,9 @@ module.exports = {
 		            updatedAt: new Date(), 
 		            sector: company.sector,
 		            //subsector: company.subsector,
-		           // marketCap: company.marketCap,
+		            marketCap: company.marketCap,
 		           // currency: company.currency,
-		            //averageVolume: company.averageVolume,
+		            averageVolume: company.averageVolume,
 		            xid: company.xid
 		            //directives: company.directives,
 		            //countryList: company.countryList
@@ -93,11 +93,11 @@ module.exports = {
 		        });
 		    }
 		    database.getCompanyToScrapHistory=function(callback){
-		        this.companies.findOne(
+		        this.companies.find(
                        // {"$and": [
                             {"$or": [
                                 {
-                                    historyUpdatedAt: {$lt:new Date(new Date().getTime() - (1000 * 60) * 60 * 24 * 4)} //4 days
+                                    historyUpdatedAt: {$lt:new Date(new Date().getTime() - (1000 * 60) * 60 * 24 * 1)} //2 days
                                 },{
                                     historyUpdatedAt: null
                                   }
@@ -105,15 +105,31 @@ module.exports = {
                          /*    }, {
                                 symbol: /(FSI$|DJI$|NKIK$|HKG$|GER$)/
                             }
-                          ]*/}, function(err, doc){
-		                if (doc){
-		                    debug && console.log("Company to scrap history found!...");
-		                    callback && callback(doc);
-		                }else{
-		                    debug && console.log("No company to scrap history found...");
-		                    callback && callback(null);
-		                }
-		            }); 
+                          ]*/}).count(function(err, count){
+				                if (count && count>0){
+				                    var howMany=Math.floor(Math.random()*count)
+				                    console.log("offset "+howMany);
+				                    database.companies.find({"$or": [
+		                                {
+		                                    historyUpdatedAt: {$lt:new Date(new Date().getTime() - (1000 * 60) * 60 * 24 * 1)} // days
+		                                },{
+		                                    historyUpdatedAt: null
+		                                  }
+		                                ]}).limit(1).skip(howMany).toArray(function(err, docs){
+						                if (docs){
+						                    if(docs && docs[0]){
+						                    	callback && callback(docs[0]);	
+						                    }
+						                }else{
+						                    debug && console.log("No company to scrap history found...");
+						                    callback && callback(null);
+						                }
+						            }); 
+				                }else{
+				                    debug && console.log("No company to scrap history found...");
+				                    callback && callback(null);
+				                }
+				            }); 
 		    }
 		    database.truncateCompanyHistory=function(company, callback){
 		        debug && console.log("Deleting companies history..."+JSON.stringify(company.symbol));

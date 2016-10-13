@@ -193,40 +193,44 @@ module.exports = {
 			    //close file
 				callback && callback(false); return;
 			}else{
+				self.database.getCompany(docs[0].symbol, function(company){
+					var history=docs[0];
+					var thisVector=[];
 
-				var history=docs[0];
-				var thisVector=[];
+					if(!history){
+						callback && callback(true); return;
+					}		
 
-				if(!history){
+					var thisDates=Object.keys(history.historicalValues);
+
+					for(var j=0; j<thisDates.length;j++){
+						var date2Find=new Date(thisDates[j]);
+						for(var i=5; i<datesMatrix.length;i++){
+						 // console.log("Date[i]",datesMatrix[i],date2Find,datesMatrix[i].dayEquals(date2Find))
+						  if(datesMatrix[i].dayEquals(date2Find)){
+						    //console.log("Found!",i);
+						    thisVector[i]=(history.historicalValues[thisDates[j]]);
+						    break;
+						  }
+						}
+						if(i==datesMatrix.length){
+							console.log("ERROR, date not found:",date2Find);
+							thisVector[i]=null;
+						}
+					}
+					if(thisVector.length>0){
+						console.log("RES! "+history.symbol);
+						thisVector[0]=history.symbol;		
+						thisVector[1]=company.companyName;
+						thisVector[2]=history.currency;	
+						thisVector[3]=company.averageVolume;	
+						thisVector[4]=company.sector;	
+						thisVector[5]=company.industry;	
+						//Write to file
+						fs.appendFile("./files/history-matrix.csv",self.getCSV(thisVector));
+					}
 					callback && callback(true); return;
-				}		
-
-				var thisDates=Object.keys(history.historicalValues);
-
-				for(var j=0; j<thisDates.length;j++){
-					var date2Find=new Date(thisDates[j]);
-					for(var i=3; i<datesMatrix.length;i++){
-					 // console.log("Date[i]",datesMatrix[i],date2Find,datesMatrix[i].dayEquals(date2Find))
-					  if(datesMatrix[i].dayEquals(date2Find)){
-					    //console.log("Found!",i);
-					    thisVector[i]=(history.historicalValues[thisDates[j]]);
-					    break;
-					  }
-					}
-					if(i==datesMatrix.length){
-						console.log("ERROR, date not found:",date2Find);
-						thisVector[i]=null;
-					}
-				}
-				if(thisVector.length>0){
-					console.log("RES! "+history.symbol);
-					thisVector[0]=history.symbol;		
-					thisVector[1]=history.companyName;
-					thisVector[2]=history.currency;	
-					//Write to file
-					fs.appendFile("./files/history-matrix.csv",self.getCSV(thisVector));
-				}
-				callback && callback(true); return;
+				});
 			}	
 	    });
 	},
@@ -252,7 +256,11 @@ module.exports = {
 					result+='"'+array[i]+'",'
 				}
 			}else{
-				result+=','
+				if(i==array.length-1){
+					result+='\n'
+				}else{
+					result+=','
+				}
 			}
 		}
 		return result;
@@ -270,7 +278,7 @@ module.exports = {
 		weekday[6] = "Sabado";
 
 		for(var i=0; i<array.length; i++){
-			if(i>2){
+			if(i>5){
 				var data=weekday[array[i].getDay()]+" "+array[i].getDate()+"-"+array[i].getMonth()+"-"+array[i].getFullYear();
 			}else{
 				var data=array[i];
@@ -282,7 +290,11 @@ module.exports = {
 					result+='"'+data+'",'
 				}
 			}else{
-				result+=','
+				if(i==array.length-1){
+					result+='\n'
+				}else{
+					result+=','
+				}
 			}
 		}
 		return result;
@@ -338,6 +350,9 @@ function getDatesInInterval(startDate, stopDate) {
     dateArray.push("Symbol");
     dateArray.push("Company Name");
     dateArray.push("Currency");
+    dateArray.push("Average volume");
+    dateArray.push("Sector");
+    dateArray.push("Industry");
 
     var currentDate = startDate;
     while (currentDate <= stopDate) {

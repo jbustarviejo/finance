@@ -760,9 +760,9 @@ module.exports = {
 					    }
 
 					    history.symbol=company.symbol;
-					    history.sector=company.sector;
-					    history.industry=company.industry;
-					    history.companyName=company.companyName;
+					    //history.sector=company.sector;
+					    //history.industry=company.industry;
+					    //history.companyName=company.companyName;
 					    history.historicalValues=historicalValues;
 					    history.currency=currency;
 					    history.createdAt=new Date();
@@ -781,20 +781,20 @@ module.exports = {
 					});
 				}
 
-				if(!companyToScrap.xid){
-					self.getCompanyXid(companyToScrap, function(result){
+				//if(!companyToScrap.xid){
+					self.getCompanyXidAndVolume(companyToScrap, function(result){
 						if(!result){
 							callback && callback(false); return;
 						}
 						getHistory(companyToScrap,callback);
 					});
-				}else{
+				/*}else{
 					getHistory(companyToScrap,callback);
-				}
+				}*/
 			});
 		});
 	},
-	getCompanyXid: function(company, callback){
+	getCompanyXidAndVolume: function(company, callback){
 		var self=this;
 		http.get("http://markets.ft.com/data/equities/tearsheet/summary?s="+company.symbol, function(res){
 			var html = '';
@@ -838,6 +838,11 @@ module.exports = {
 								var $ = require('jquery')(window);
 
 								company.xid=JSON.parse($(".mod-tearsheet-add-to-portfolio").attr("data-mod-config")).xid;
+								company.averageVolume=$(".mod-tearsheet-key-stats__extra .mod-ui-table").first().find("td").first().text();
+
+								var marketCapTag=$($(".mod-tearsheet-key-stats__data__table:first tr")[1]).find("td");
+								var marketCapHtml=marketCapTag.html();
+								company.marketCap=marketCapHtml.substr(0,marketCapHtml.indexOf(" <span"));
 
 								self.database.updateCompany(company, function(){
 									callback && callback(true); return true;
@@ -856,6 +861,11 @@ module.exports = {
 						var $ = require('jquery')(window);
 
 						company.xid=JSON.parse($(".mod-tearsheet-add-to-portfolio").attr("data-mod-config")).xid;
+						company.averageVolume=$(".mod-tearsheet-key-stats__extra .mod-ui-table").first().find("td").first().text();
+
+						var marketCapTag=$("[data-lexicon-term='market capitalisation']").parent().siblings("td");
+						var marketCapHtml=marketCapTag.html();
+						company.marketCap=marketCapHtml.substr(0,marketCapHtml.indexOf(" <span"));
 
 						self.database.updateCompany(company, function(){
 							callback && callback(true); return true;
