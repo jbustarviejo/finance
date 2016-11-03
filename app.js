@@ -7,6 +7,7 @@ var CronJob = require('cron').CronJob;
 var db = require('./database.js');
 var scrap = require('./scrap.js');
 var get = require('./get.js');
+var port=8000;
 
 var debug = true;
 
@@ -16,9 +17,11 @@ var history=db.getCollection('history').find({});
 var totalCompanies=db.getCollection('companies').find({}).count();
 var totalHistory=history.count();
 var updatables=db.getCollection('companies').find({"$or": [{historyUpdatedAt: {$lt:new Date(new Date().getTime() - (1000 * 60) * 60 *24)}},{historyUpdatedAt: null}]}).count();
-var last100=db.getCollection('companies').find({ historyUpdatedAt: { $ne: null } }).limit(100).sort({historyUpdatedAt: 1});
-var meanTime=((last100[99].historyUpdatedAt-last100[0].historyUpdatedAt)/60000)*60/100;
-totalHistory+" de "+totalCompanies+ " (Global: "+Math.round(1000*totalHistory/totalCompanies)/10+"%) -> Actualizando "+(Math.round(10000-10000*(updatables/totalCompanies))/100)+"%. \nHora estimada finalización: "+new Date(new Date().getTime()+(totalCompanies-totalHistory)*1000*meanTime).toString();
+var last1000=db.getCollection('companies').find({ historyUpdatedAt: { $ne: null } }).limit(1000).sort({historyUpdatedAt: -1});
+var meanTime=((last1000[0].historyUpdatedAt-last1000[999].historyUpdatedAt)/60000)*60/1000;
+"Actualizando "+updatables+" de "+totalCompanies+" - "+(Math.floor(10000-10000*(updatables/totalCompanies))/100)+"%. "+
+"\nHora estimada finalización: "+new Date(new Date().getTime()+(updatables)*1000*meanTime).toString()+
+"\nVelocidad media: "+meanTime+"s";
 
 */
 
@@ -27,6 +30,7 @@ console.log("=>Services starting...");
 db.connect(function(database){
 
     scrap.database=database;
+    scrap.port=port;
     get.database=database;
 
     var server=http.createServer(function(req,res){
@@ -90,6 +94,12 @@ db.connect(function(database){
                     debug && console.log("Finish scrapping companies in industries #");
                 });
             break;
+            case '/scrap-data/get-currency':
+                scrap.scrapCurrencies(function(result){
+                    res.end(JSON.stringify({"ok":result, "msg":"Scrap companies from industries page #"}));
+                    debug && console.log("Finish scrapping companies in industries #");
+                });
+            break;
 
             //GETs
             case '/get-data/get-indexes':
@@ -142,6 +152,12 @@ db.connect(function(database){
                     debug && console.log("Getted histories");
                 });
             break;
+            case '/get-data/get-all-currencies':
+                get.getCurrenciesFiles(function(msg){
+                    debug && console.log("Getted histories");
+                    res.end("End!");
+                });
+            break;
             case '/get-data/get-history-matrix':
                 var params=url.parse(req.url, true).query;
                 debug && console.log("Params: ",JSON.stringify(params));
@@ -152,8 +168,8 @@ db.connect(function(database){
                 }
                 get.getHistoryMatrix(offset,function(repeat){
                     if(repeat){
-                        console.log("Repeating");
-                        http.get('http://localhost:8000/get-data/get-history-matrix?offset='+(offset+1), function(res){
+                        //console.log("Repeating");
+                        http.get('http://localhost:'+port+'/get-data/get-history-matrix?offset='+(offset+1), function(res){
                         }).on('error', function (error) {
                             console.log("Error in new scrap history matrix: "+error);
                         });
@@ -192,7 +208,7 @@ db.connect(function(database){
             console.log("=>End request!");
         }
 
-    }).listen(8000);
+    }).listen(port);
 
     console.log("=>Creating crons for current time: "+(new Date)+"...");
 
@@ -205,7 +221,7 @@ db.connect(function(database){
       onTick: function() {
         console.log("Cron tick");
         //Runs on Saturday at night
-        http.get('http://localhost:8000/scrap-data/get-companies-history', function(res){
+        http.get('http://localhost:'+port+'/scrap-data/get-companies-history', function(res){
         }).on('error', function (error) {
             console.log("Error in new scrap companies from indexes request (3): "+error);
         });

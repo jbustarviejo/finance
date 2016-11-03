@@ -108,7 +108,7 @@ module.exports = {
                           ]*/}).count(function(err, count){
 				                if (count && count>0){
 				                    var howMany=Math.floor(Math.random()*count)
-				                    console.log("offset "+howMany);
+				                    //console.log("offset "+howMany);
 				                    database.companies.find({"$or": [
 		                                {
 		                                    historyUpdatedAt: {$lt:new Date(new Date().getTime() - (1000 * 60) * 60 * 24 * 1)} // days
@@ -137,8 +137,19 @@ module.exports = {
 		            callback && callback(company); return company;
 		        });
 		    }
+		    database.truncateCurrencies=function(callback){
+		        debug && console.log("Deleting currencies history...");
+		        this.currency.remove({}, function(){
+		            callback && callback(); return;
+		        });
+		    }
 		    database.insertCompanyHistory=function(history, callback){
 		        this.history.insert(history, function(){
+		            callback && callback(); return;
+		        });
+		    }
+		    database.insertCurrency=function(currency, callback){
+		        this.currency.insert(currency, function(){
 		            callback && callback(); return;
 		        });
 		    }
@@ -339,12 +350,25 @@ module.exports = {
 		            callback && callback(); return;
 		        });
 		    }
+		    database.getCurrencyHistory=function(symbol, callback){
+		        this.currency.findOne({symbol: symbol}, function(err, doc){
+		            if (doc){
+		                debug && console.log("Currency history found!..."+doc.symbol);
+		                callback && callback(doc);
+		            }else{
+		                debug && console.log("No currency history found...");
+		                callback && callback(null);
+		            }
+		        }); 
+		    }
 		    database.indexes = db.collection('indexes',function(){
     			database.companies = db.collection('companies', function(){
     				database.history = db.collection('history', function(){
     					database.sector = db.collection('sector', function(){
     						database.industry = db.collection('industry', function(){
-    	  						callback && callback(database); return;
+    							database.currency = db.collection('currency', function(){
+    	  							callback && callback(database); return;
+    	  						});		
 	  						});
 						});
     	  			});

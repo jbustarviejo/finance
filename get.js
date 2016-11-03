@@ -172,22 +172,23 @@ module.exports = {
 	},
 	getHistoryMatrix: function (offset, callback) {
 		var self=this;
-		console.log("Getting history");
+		//console.log("Getting history");
 
 		/*if(offset==10){
 			callback && callback(false); return;
 		}*/
 
 		//write header
-		console.log("Starting loop");
+		//console.log("Starting loop");
+		var filename="./files/history-matrix.csv";
 
-		var datesMatrix=getDatesInInterval(new Date().addDays(-5*366), new Date());
+		var datesMatrix=getDatesInInterval(new Date().addDays(-3650), new Date());
 
 		if(offset==0){
-			fs.writeFile("./files/history-matrix.csv",self.getDatesCSV(datesMatrix));
+			fs.writeFile(filename,self.getDatesCSV(datesMatrix));
 		}
 
-		self.database.history.find().limit(1).skip(offset).toArray(function(err, docs){
+		self.database.history.find({historicalValues: {$ne: {}}, currency: /(USD|HKD|EUR|SGD|GBp|AUD|INR|CAD|JPY|PKR|MYR|IDR|TWD|CNY|CLP|PLN|PHP|SEK|LKR|TRY|THB|CHF|CZK|KES|BRL|DKK|MAD|NZD|ARS|NOK|RUB|MXN|HUF|NGN|OMR|VND|ZAc)/ }).limit(1).skip(offset).toArray(function(err, docs){
         	if(!docs || docs.length==0){
 				console.log("No doc...", docs, "Err?:",err);
 			    //close file
@@ -202,14 +203,16 @@ module.exports = {
 					}		
 
 					var thisDates=Object.keys(history.historicalValues);
+					var startLoop=6;
 
 					for(var j=0; j<thisDates.length;j++){
 						var date2Find=new Date(thisDates[j]);
-						for(var i=5; i<datesMatrix.length;i++){
+						for(var i=startLoop; i<datesMatrix.length;i++){
 						 // console.log("Date[i]",datesMatrix[i],date2Find,datesMatrix[i].dayEquals(date2Find))
 						  if(datesMatrix[i].dayEquals(date2Find)){
 						    //console.log("Found!",i);
 						    thisVector[i]=(history.historicalValues[thisDates[j]]);
+						    startLoop=i;
 						    break;
 						  }
 						}
@@ -219,21 +222,85 @@ module.exports = {
 						}
 					}
 					if(thisVector.length>0){
-						console.log("RES! "+history.symbol);
+						console.log(history.symbol);
 						thisVector[0]=history.symbol;		
 						thisVector[1]=company.companyName;
-						thisVector[2]=history.currency;	
-						thisVector[3]=company.averageVolume;	
-						thisVector[4]=company.sector;	
-						thisVector[5]=company.industry;	
+						thisVector[2]=company.sector;	
+						thisVector[3]=company.industry;	
+						thisVector[4]=self.normalizeCapital(company.marketCap);
+						thisVector[5]=history.currency;	
 						//Write to file
-						fs.appendFile("./files/history-matrix.csv",self.getCSV(thisVector));
+						fs.appendFile(filename,self.getCSV(thisVector));
 					}
 					callback && callback(true); return;
 				});
 			}	
 	    });
 	},
+	getCurrenciesFiles: function (callback) {
+		var self=this;
+		console.log("Getting currencies");
+
+		var currencies=["HKD","EUR","SGD","GBp","AUD","INR","CAD","JPY","PKR","MYR","IDR","TWD","CNY","CLP","PLN","PHP","SEK","LKR","TRY","THB","CHF","CZK","KES","BRL","DKK","MAD","NZD","ARS","NOK","RUB","MXN","HUF","NGN","OMR","VND","ZAc"];
+
+		for(var i=0; i<currencies.length;i++){
+			self.createCurrencyFile(currencies[i], i==0, function(){ return; }); 
+		}
+		console.log("====>Finally history end!!");
+		callback(true); return;
+	},
+	createCurrencyFile(symbol, writeHeader, callback){
+		var self=this;
+		self.database.getCurrencyHistory(symbol,function(currency){
+
+			var thisDates=Object.keys(currency.historicalValues);
+			var thisVector=[];
+			var thisDatesHeader=[];
+
+			thisDatesHeader[0]="Symbol";
+			thisDatesHeader[1]="Currency conversion";
+			thisVector[0]=currency.symbol;
+			thisVector[1]=currency.currencyName;
+
+			for(var i=2; i<thisDates.length+2; i++){
+				var thisDate=new Date(thisDates[i-2]);
+				thisDatesHeader[i]=thisDate.getDate()+"-"+(thisDate.getMonth()+1)+"-"+thisDate.getFullYear();
+			}
+			for(var i=2; i<thisDates.length+2; i++){
+				thisVector[i]=currency.historicalValues[thisDates[i-2]]
+			}
+
+			if(writeHeader){
+				fs.writeFile("./files/currency-matrix.csv",self.getCSV(thisDatesHeader), function(){
+					fs.appendFile("./files/currency-matrix.csv",self.getCSV(thisVector));
+					callback(); return;
+				})
+			}else{
+				fs.appendFile("./files/currency-matrix.csv",self.getCSV(thisVector));
+			}
+
+			callback(); return;
+		});
+		return;
+	},
+	normalizeCapital: function(capital){
+		if(!capital){
+			return null;
+		}
+        if(capital.endsWith("k")){
+        	return capital.substr(0, capital.length-1)*1e3;
+        }
+        if(capital.endsWith("m")){
+        	return capital.substr(0, capital.length-1)*1e6;
+        }
+        if(capital.endsWith("bn")){
+        	return capital.substr(0, capital.length-2)*1e9;
+        }
+        if(capital.endsWith("tn")){
+        	return capital.substr(0, capital.length-2)*1e12;
+        }
+        return capital;
+    },
 	getDateWithFormat:function(date){
 		if(date==null||date==undefined){
 			return "";
@@ -279,7 +346,8 @@ module.exports = {
 
 		for(var i=0; i<array.length; i++){
 			if(i>5){
-				var data=weekday[array[i].getDay()]+" "+array[i].getDate()+"-"+array[i].getMonth()+"-"+array[i].getFullYear();
+				//var data=weekday[array[i].getDay()]+" "+array[i].getDate()+"-"+array[i].getMonth()+"-"+array[i].getFullYear();
+				var data=array[i].getDate()+"-"+(array[i].getMonth()+1)+"-"+array[i].getFullYear();
 			}else{
 				var data=array[i];
 			}
@@ -349,10 +417,10 @@ function getDatesInInterval(startDate, stopDate) {
 
     dateArray.push("Symbol");
     dateArray.push("Company Name");
-    dateArray.push("Currency");
-    dateArray.push("Average volume");
     dateArray.push("Sector");
     dateArray.push("Industry");
+    dateArray.push("Market capital");
+    dateArray.push("Currency");
 
     var currentDate = startDate;
     while (currentDate <= stopDate) {

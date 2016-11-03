@@ -12,7 +12,7 @@ module.exports = {
 				//Make another asynch request, with a delay
 				var randomDelay = Math.round(Math.random()*delay) + delay;
 				setTimeout(function() {
-					http.get('http://localhost:8000/scrap-data/get-companies-in-indexes', function(res){
+					http.get('http://localhost:'+self.port+'/scrap-data/get-companies-in-indexes', function(res){
 
 				  	}).on('error', function (error) {
 						console.log("Error in new scrap companies from indexes request: "+error);
@@ -43,7 +43,7 @@ module.exports = {
 				//Make another asynch request to get new index
 				var randomDelay = Math.round(Math.random()*delay) + delay;
 				setTimeout(function() {
-					http.get('http://localhost:8000/scrap-data/get-companies-in-indexes', function(res){
+					http.get('http://localhost:'+self.port+'/scrap-data/get-companies-in-indexes', function(res){
 
 				  	}).on('error', function (error) {
 						console.log("Error in new scrap companies from indexes request: "+error);
@@ -61,7 +61,7 @@ module.exports = {
 				//Make another asynch request, with a delay
 				var randomDelay = Math.round(Math.random()*delay) + delay;
 				setTimeout(function() {
-	    			http.get('http://localhost:8000/scrap-data/get-companies-info', function(res){
+	    			http.get('http://localhost:'+self.port+'/scrap-data/get-companies-info', function(res){
 
 				  	}).on('error', function (error) {
 						console.log("Error in new scrap companies info request: "+error);
@@ -91,7 +91,7 @@ module.exports = {
 				//Make another asynch request to get new index
 				var randomDelay = Math.round(Math.random()*delay) + delay;
 				setTimeout(function() {
-					http.get('http://localhost:8000/scrap-data/get-industries-in-sectors', function(res){
+					http.get('http://localhost:'+self.port+'/scrap-data/get-industries-in-sectors', function(res){
 				  	}).on('error', function (error) {
 						console.log("Error in new scrap industries from sectors request: "+error);
 					    callback && callback(repeat); return;
@@ -110,7 +110,7 @@ module.exports = {
 				//Make another asynch request to this function, with a delay
 				var randomDelay = Math.round(Math.random()*delay) + delay;
 				setTimeout(function() {
-					http.get('http://localhost:8000/scrap-data/get-companies-in-industries', function(res){
+					http.get('http://localhost:'+self.port+'/scrap-data/get-companies-in-industries', function(res){
 
 				  	}).on('error', function (error) {
 						console.log("Error in new scrap companies from industries request: "+error);
@@ -121,7 +121,7 @@ module.exports = {
 				//Make another asynch request, with a delay
 				var randomDelay = Math.round(Math.random()*delay) + delay;
 				setTimeout(function() {
-					http.get('http://localhost:8000/scrap-data/get-companies-in-industries-paging?industryName='+encodeURI(industryName), function(res){
+					http.get('http://localhost:'+self.port+'/scrap-data/get-companies-in-industries-paging?industryName='+encodeURI(industryName), function(res){
 
 				  	}).on('error', function (error) {
 						console.log("Error in new scrap companies from industries request: "+error);
@@ -143,7 +143,7 @@ module.exports = {
 				//Make another asynch request to previous function, with a delay
 				var randomDelay = Math.round(Math.random()*delay) + delay;
 				setTimeout(function() {
-					http.get('http://localhost:8000/scrap-data/get-companies-in-industries', function(res){
+					http.get('http://localhost:'+self.port+'/scrap-data/get-companies-in-industries', function(res){
 
 				  	}).on('error', function (error) {
 						console.log("Error in new scrap companies from industries request: "+error);
@@ -154,7 +154,7 @@ module.exports = {
 				//Make another asynch request, with a delay
 				var randomDelay = Math.round(Math.random()*delay) + delay;
 				setTimeout(function() {
-					http.get('http://localhost:8000/scrap-data/get-companies-in-industries-paging?industryName='+encodeURI(industryName), function(res){
+					http.get('http://localhost:'+self.port+'/scrap-data/get-companies-in-industries-paging?industryName='+encodeURI(industryName), function(res){
 
 				  	}).on('error', function (error) {
 						console.log("Error in new scrap companies from industries request: "+error);
@@ -176,7 +176,7 @@ module.exports = {
 				debug && console.log("Request new paging");
 				var randomDelay = Math.round(Math.random()*delay) + delay;
 				setTimeout(function() {
-					http.get('http://localhost:8000/scrap-data/get-companies-history', function(res){
+					http.get('http://localhost:'+self.port+'/scrap-data/get-companies-history', function(res){
 				  	}).on('error', function (error) {
 						console.log("Error in new scrap companies fhistory: "+error);
 					});
@@ -188,6 +188,19 @@ module.exports = {
 				debug && console.log("====>Finally history end!!");
 				callback && callback(repeat); return;
 			}
+		});
+	},
+	scrapCurrencies: function (callback) {
+		var self=this;
+		var currencies=["HKD","EUR","SGD","GBp","AUD","INR","CAD","JPY","PKR","MYR","IDR","TWD","CNY","CLP","PLN","PHP","SEK","LKR","TRY","THB","CHF","CZK","KES","BRL","DKK","MAD","NZD","ARS","NOK","RUB","MXN","HUF","NGN","OMR","VND","ZAc"];
+		var symbolsEq=[616890, 613522, 611926, 618593, 615091, 613630, 615897, 616660, 611329, 617993, 620107, 612220, 612178, 613406,614165,617570,616203,611754,606737,619310,610693,617503,615961,615261,610928,618362,615812,616173,617514,614073,617606,617039,614035,615719,611986,610789];
+
+		self.database.truncateCurrencies(function(){
+			for(var i=0; i<currencies.length;i++){
+				self.scrapCurrencyToUSD(currencies[i], symbolsEq[i]); 
+			}
+			debug && console.log("====>Finally history end!!");
+			callback(true);
 		});
 	},
 
@@ -245,7 +258,7 @@ module.exports = {
 							indexToScrap.membersCount=membersCount;
 
 							self.database.updateIndex(indexToScrap, function(){
-								http.get('http://localhost:8000/scrap-data/get-companies-in-indexes-paging?page=2&index='+indexToScrap.indexId, function(res){
+								http.get('http://localhost:'+self.port+'/scrap-data/get-companies-in-indexes-paging?page=2&index='+indexToScrap.indexId, function(res){
 							  	}).on('error', function (error) {
 									console.log("Error in new scrap companies from indexes request (2): "+error);
 								});
@@ -315,7 +328,7 @@ module.exports = {
 						indexToScrap.membersCount=membersCount;
 
 						self.database.updateIndex(indexToScrap, function(){
-							callback && callback(true, 'http://localhost:8000/scrap-data/get-companies-in-indexes-paging?page='+(page*1+1)+'&index='+indexToScrap.indexId); return true;
+							callback && callback(true, 'http://localhost:'+self.port+'/scrap-data/get-companies-in-indexes-paging?page='+(page*1+1)+'&index='+indexToScrap.indexId); return true;
 						});
 					});
 				});
@@ -700,6 +713,76 @@ module.exports = {
 		});
 	},
 	/*
+	* Get currencies from FT
+	*/
+	scrapCurrencyToUSD:function(currency, xid){
+		var self=this;
+
+		var body = JSON.stringify({"days":3650,"dataNormalized":false,"dataPeriod":"Month","dataInterval":1,"endOffsetDays":0,"exchangeOffset"
+		:0,"realtime":false,"yFormat":"0.###","timeServiceFormat":"JSON","rulerIntradayStart":26,"rulerIntradayStop"
+		:3,"rulerInterdayStart":10957,"rulerInterdayStop":365,"returnDateType":"ISO8601","elements":[{"Label"
+		:"67cc78e9","Type":"price","Symbol":xid,"OverlayIndicators":[],"Params":{}}]});
+
+		var request = new http.ClientRequest({
+		    hostname: "markets.ft.com",
+		    port: 80,
+		    path: "/data/chartapi/series",
+		    method: "POST",
+		    headers: {
+		        "Content-Type": "application/json",
+		        "Content-Length": Buffer.byteLength(body)
+		    }
+		})
+
+		request.end(body)
+		request.on('response', function (response) {
+			var html="";
+
+		  //response.setEncoding('utf8');
+
+		response.on('data', function (chunk) {
+		    html+=chunk;
+		});
+
+		response.on('end', function (chunk) {
+			try{
+		    	var allResponse=JSON.parse(html);
+		    }catch(Exception){
+		    	return;
+		    }
+
+		    var dates=allResponse.Dates;
+
+		    var curr={};
+		    var historicalValues={};
+		    var datesLength=0;
+
+		    if(allResponse.Elements && allResponse.Elements[0] && allResponse.Elements[0].ComponentSeries && allResponse.Elements[0].ComponentSeries[0] && allResponse.Elements[0].ComponentSeries[0].Values){
+		    	var open=allResponse.Elements[0].ComponentSeries[0].Values; //All other data are available too (close, volumne...)
+
+			    for(var i=0; i<dates.length; i++){
+			      historicalValues[dates[i]]=open[i];
+			    }
+			    datesLength=dates.length;
+		    }
+
+		    curr.symbol=currency
+		    curr.xid=xid
+		    curr.currencyName=allResponse.Elements[0].CompanyName;
+		    curr.historicalValues=historicalValues;
+		    curr.createdAt=new Date();
+		    curr.entriesCount=datesLength;
+		    
+		    self.database.insertCurrency(curr, function(){
+				return;
+			});
+		  });
+		}).on('error', function (error) {
+			console.log("Request error in http to currency '"+currency+"': "+error);
+			return;
+		});
+	},
+	/*
 	* Get companies history
 	*/
 	scrapCompaniesHistoryFromFinantialTimes:function(callback){
@@ -714,7 +797,7 @@ module.exports = {
 				function getHistory(company, callback){
 					debug && console.log("Processing request...");
 
-					var body = JSON.stringify({"days":1825,"dataNormalized":false,"dataPeriod":"Day","dataInterval":1,"endOffsetDays":0,"exchangeOffset"
+					var body = JSON.stringify({"days":3650,"dataNormalized":false,"dataPeriod":"Day","dataInterval":1,"endOffsetDays":0,"exchangeOffset"
 					:0,"realtime":false,"yFormat":"0.###","timeServiceFormat":"JSON","rulerIntradayStart":26,"rulerIntradayStop"
 					:3,"rulerInterdayStart":10957,"rulerInterdayStop":365,"returnDateType":"ISO8601","elements":[{"Label"
 					:"46bd1516","Type":"price","Symbol":company.xid,"OverlayIndicators":[],"Params":{}}]});
@@ -741,7 +824,11 @@ module.exports = {
 					});
 
 					response.on('end', function (chunk) {
-					    var allResponse=JSON.parse(html);
+						try{
+					    	var allResponse=JSON.parse(html);
+					    }catch(Exception){
+					    	callback && callback(false); return false;
+					    }
 
 					    var dates=allResponse.Dates;
 					    var history={};
@@ -842,7 +929,11 @@ module.exports = {
 
 								var marketCapTag=$($(".mod-tearsheet-key-stats__data__table:first tr")[1]).find("td");
 								var marketCapHtml=marketCapTag.html();
-								company.marketCap=marketCapHtml.substr(0,marketCapHtml.indexOf(" <span"));
+								if(marketCapHtml){
+									company.marketCap=marketCapHtml.substr(0,marketCapHtml.indexOf(" <span"));
+								}else{
+									company.marketCap=null;
+								}
 
 								self.database.updateCompany(company, function(){
 									callback && callback(true); return true;
@@ -865,7 +956,12 @@ module.exports = {
 
 						var marketCapTag=$("[data-lexicon-term='market capitalisation']").parent().siblings("td");
 						var marketCapHtml=marketCapTag.html();
-						company.marketCap=marketCapHtml.substr(0,marketCapHtml.indexOf(" <span"));
+						if(marketCapHtml){
+							company.marketCap=marketCapHtml.substr(0,marketCapHtml.indexOf(" <span"));
+						}else{
+							company.marketCap=null;
+						}
+						
 
 						self.database.updateCompany(company, function(){
 							callback && callback(true); return true;
