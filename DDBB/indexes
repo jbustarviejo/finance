@@ -1,0 +1,7 @@
+{"_id":{"$oid":"57bb463dab3c93006dd0cc30"},"indexId":"FTSE:FSI","createdAt":{"$date":"2016-09-21T21:57:12.480Z"},"updatedAt":{"$date":"2016-09-21T20:04:47.544Z"},"membersCount":101,"xid":"572009"}
+{"_id":{"$oid":"57e2e6973203d9a358f12d79"},"indexId":"DJI:DJI","createdAt":{"$date":"2016-09-21T21:57:12.480Z"},"updatedAt":{"$date":"2016-09-21T20:04:52.343Z"},"membersCount":30,"xid":"599362"}
+{"_id":{"$oid":"57e2e6a83203d9a358f12d7a"},"indexId":"n225:NIK","createdAt":{"$date":"2016-09-21T21:57:12.480Z"},"updatedAt":{"$date":"2016-09-21T20:05:11.260Z"},"membersCount":225,"xid":"576473"}
+{"_id":{"$oid":"57e2e6bc3203d9a358f12d7b"},"indexId":"HSI:HKG","createdAt":{"$date":"2016-09-21T21:57:12.480Z"},"updatedAt":{"$date":"2016-09-21T20:05:20.438Z"},"membersCount":50,"xid":"568838"}
+{"_id":{"$oid":"57e2e6cc3203d9a358f12d7c"},"indexId":"DAXX:GER","createdAt":{"$date":"2016-09-21T21:57:12.480Z"},"updatedAt":{"$date":"2016-09-21T20:05:28.168Z"},"membersCount":30,"xid":"569857"}
+{"_id":{"$oid":"57e2e7383203d9a358f12d7d"},"indexId":"FTSM:FSI","createdAt":{"$date":"2016-09-21T21:57:12.480Z"},"updatedAt":{"$date":"2016-09-21T20:05:59.948Z"},"membersCount":247,"xid":"591836"}
+{"_id":{"$oid":"57e2e7493203d9a358f12d7e"},"indexId":"INX:IOM","createdAt":{"$date":"2016-09-21T21:57:12.480Z"},"updatedAt":{"$date":"2016-09-21T20:06:38.112Z"},"membersCount":505,"xid":"575769"}

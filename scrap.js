@@ -718,7 +718,7 @@ module.exports = {
 	scrapCurrencyToUSD:function(currency, xid){
 		var self=this;
 
-		var body = JSON.stringify({"days":3650,"dataNormalized":false,"dataPeriod":"Month","dataInterval":1,"endOffsetDays":0,"exchangeOffset"
+		var body = JSON.stringify({"days":3700,"dataNormalized":false,"dataPeriod":"Month","dataInterval":1,"endOffsetDays":0,"exchangeOffset"
 		:0,"realtime":false,"yFormat":"0.###","timeServiceFormat":"JSON","rulerIntradayStart":26,"rulerIntradayStop"
 		:3,"rulerInterdayStart":10957,"rulerInterdayStop":365,"returnDateType":"ISO8601","elements":[{"Label"
 		:"67cc78e9","Type":"price","Symbol":xid,"OverlayIndicators":[],"Params":{}}]});
@@ -855,7 +855,7 @@ module.exports = {
 					    history.createdAt=new Date();
 					    history.entriesCount=datesLength;
 					    
-					    self.database.insertCompanyHistory(history, function(){
+					    self.database.insertCompanyHistoryWithUpdate(history, function(){
 							self.database.touchCompanyHistory(company, function(){
 								debug && console.log("Scrap other ("+company.symbol+")");
 								callback && callback(true); return true;

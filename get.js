@@ -264,7 +264,7 @@ module.exports = {
 
 			for(var i=2; i<thisDates.length+2; i++){
 				var thisDate=new Date(thisDates[i-2]);
-				thisDatesHeader[i]=thisDate.getDate()+"-"+(thisDate.getMonth()+1)+"-"+thisDate.getFullYear();
+				thisDatesHeader[i]=thisDate.getDate()+"_"+(thisDate.getMonth()+1)+"_"+thisDate.getFullYear();
 			}
 			for(var i=2; i<thisDates.length+2; i++){
 				thisVector[i]=currency.historicalValues[thisDates[i-2]]
@@ -305,7 +305,7 @@ module.exports = {
 		if(date==null||date==undefined){
 			return "";
 		}
-		return date.getUTCFullYear()+"-"+(date.getUTCMonth()+1)+"-"+date.getUTCDate();
+		return date.getUTCFullYear()+"_"+(date.getUTCMonth()+1)+"_"+date.getUTCDate();
 	},
 	standarizedForCsv: function(string){
 		if(string==null||string==undefined){
@@ -347,7 +347,7 @@ module.exports = {
 		for(var i=0; i<array.length; i++){
 			if(i>5){
 				//var data=weekday[array[i].getDay()]+" "+array[i].getDate()+"-"+array[i].getMonth()+"-"+array[i].getFullYear();
-				var data=array[i].getDate()+"-"+(array[i].getMonth()+1)+"-"+array[i].getFullYear();
+				var data=array[i].getDate()+"_"+(array[i].getMonth()+1)+"_"+array[i].getFullYear();
 			}else{
 				var data=array[i];
 			}
@@ -416,10 +416,10 @@ function getDatesInInterval(startDate, stopDate) {
     var dateArray = new Array();
 
     dateArray.push("Symbol");
-    dateArray.push("Company Name");
+    dateArray.push("CompanyName");
     dateArray.push("Sector");
     dateArray.push("Industry");
-    dateArray.push("Market capital");
+    dateArray.push("MarketCapital");
     dateArray.push("Currency");
 
     var currentDate = startDate;

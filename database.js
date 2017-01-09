@@ -143,10 +143,10 @@ module.exports = {
 		            callback && callback(); return;
 		        });
 		    }
-		    database.insertCompanyHistory=function(history, callback){
-		        this.history.insert(history, function(){
-		            callback && callback(); return;
-		        });
+		    database.insertCompanyHistoryWithUpdate=function(history, callback){
+		    	this.history.update({symbol: history.symbol}, {$set: history}, {upsert: true}, function(err, result) {
+		    		callback && callback(); return;
+		    	});
 		    }
 		    database.insertCurrency=function(currency, callback){
 		        this.currency.insert(currency, function(){
